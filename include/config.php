@@ -3,34 +3,60 @@
 
     session_start();
 
-    $url = 'http://' .$_SERVER['HTTP_HOST'] /* . '/onect' */;
-    $sitename = 'OneCT';
-    $favicon = 'favicon.png';
-    $style = 'md1';
-    $lang = 'ru.php';
-    $enable_antispam = true;
-    $antispam = 60;
+    $url = 'http://' .$_SERVER['HTTP_HOST'] /* . '/newct' */;
+    $sitename = 'OneCt';
+    $style = 'std';
+    $antispam = 0;
+    $lang = "ru";
     $links = array(
-        'Telegram' => 'https://t.me/blopsoft',
-        'Github' => 'https://github.com/blopsoft/onect',
-        'API' => 'https://github.com/BlopSoft/OneCT/wiki/API'
+        'Telegram' => 'https://t.me/openone_channel',
+        'Github' => 'https://github.com/OpenOneorg/onect',
+        'API' => 'https://github.com/OpenOneorg/OneCT/wiki/API'
     );
 
     // Выполнение конфига
 
-    include "../lang/$lang";
-
-    $db = mysqli_connect(
-        $dbconn['server'], 
-        $dbconn['user'], 
-        $dbconn['pass'], 
-        $dbconn['db']
+    $db = new PDO("mysql:host=" .$dbconn['server']. ";dbname=" .$dbconn['db'],
+        $dbconn['user'],
+        $dbconn['pass']
     );
 
-    mysqli_set_charset($db,"utf8mb4");
+    $db->exec("set names utf8mb4");
 
     if($db == false){
-        echo('Ошибка подключение базы данных');
-        echo mysqli_connect_error();
+        die('Ошибка подключение базы данных');
     }
+
+    if(!isset($_SESSION['theme'])){
+        $_SESSION['theme'] = $style;
+    }
+    
+    if(!isset($_SESSION['lang'])){
+        $_SESSION['lang'] = $lang;
+    }
+
+    include "../lang/{$_SESSION['lang']}/lang.php";
+
+    if(isset($_SESSION['user']['token'])){
+        $side_menu = array(
+            lang_home => 'index.php',
+            lang_feed => 'feed.php',
+            lang_search => 'search.php',
+            lang_settings => 'settings.php'
+        );
+
+        if($_SESSION['user']['priv'] == 3){
+            $side_menu[lang_admin_panel] = '../admin';
+        }
+    } else {
+        $side_menu = array(
+            lang_login => 'login.php',
+            lang_reg => 'reg.php'
+        );
+    }
+
+    $footer_links = array(
+        lang_terms => 'index.php?page=terms',
+        lang_authors => 'index.php?page=authors'
+    )
 ?>

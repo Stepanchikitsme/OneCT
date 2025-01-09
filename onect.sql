@@ -8,12 +8,6 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 
-CREATE TABLE `banlist` (
-  `id` int(16) NOT NULL,
-  `user_id` int(16) NOT NULL COMMENT 'ID пользователя',
-  `reason` text DEFAULT NULL COMMENT 'Причина бана'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 CREATE TABLE `comments` (
   `id` int(16) NOT NULL,
   `post_id` int(16) NOT NULL,
@@ -51,15 +45,14 @@ CREATE TABLE `users` (
   `img50` varchar(255) DEFAULT NULL,
   `img100` varchar(255) DEFAULT NULL,
   `img200` varchar(255) DEFAULT NULL,
-  `img` varchar(255) DEFAULT NULL
+  `img` varchar(255) DEFAULT NULL,
+  `token` varchar(64) DEFAULT NULL,
+  `secret` varchar(256) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `users` (`id`, `email`, `name`, `pass`, `ip`, `descr`, `ban`, `yespost`, `priv`, `img50`, `img100`, `img200`, `img`) VALUES
-(1, 'admin@admin.org', 'Admin', '$2y$10$wqy6H/8Yy1CV1OrZcE22nOdMLXDet2I2O37mwgHoSO83Fv976ZgD6', '0', '', 0, '0', 3, '', '', '', '');
+INSERT INTO `users` (`id`, `email`, `name`, `pass`, `ip`, `descr`, `ban`, `yespost`, `priv`, `img50`, `img100`, `img200`, `img`, `token`, `secret`) VALUES
+(3, 'admin@admin.org', 'admin', '$2y$10$yRlFfciapx5HoIG7HIzsWu9rRJZ950A7SNgOTMO21TjiEYEl6CfSm', '::1', '', 0, '0', 3, NULL, NULL, NULL, NULL, 'onect-akqevr0tpsuwf-vmf73nus5ciba-1cm4j386vd9hf-ym4kn20pq38dr', '');
 
-
-ALTER TABLE `banlist`
-  ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `comments`
   ADD PRIMARY KEY (`id`);
@@ -74,9 +67,6 @@ ALTER TABLE `users`
   ADD PRIMARY KEY (`id`);
 
 
-ALTER TABLE `banlist`
-  MODIFY `id` int(16) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
 ALTER TABLE `comments`
   MODIFY `id` int(16) NOT NULL AUTO_INCREMENT;
 
@@ -87,7 +77,7 @@ ALTER TABLE `post`
   MODIFY `id` int(16) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `users`
-  MODIFY `id` int(16) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(16) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

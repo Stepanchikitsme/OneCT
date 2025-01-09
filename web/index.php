@@ -1,31 +1,25 @@
-<?php
-	require_once "../include/config.php";
+<?php 
+    require_once '../include/config.php';
+    ini_set('display_errors', false);
 
-	if(isset($_SESSION['user'])){
-		$all = mysqli_fetch_assoc(mysqli_query($db, 'SELECT * FROM users WHERE id = ' .(int)$_SESSION['user']['user_id']));
-
-		if($all['ban'] == 1){
-			$_SESSION['user']['ban'] = 1;
-			header("Location: ban.php");
-		} else { 
-			header("Location: user.php?id=" .$_SESSION['user']['user_id']);
-		}
+    if($_GET['page'] == NULL){
+        if(isset($_SESSION['user']['token'])){
+            header("Location: user.php");
+        }
     }
 ?>
 
-<html>
-<head>
-	<?php include "../include/html/head.php" ?>
-    <title><?php echo($sitename); ?></title>
-</head>
-<body>
-	<?php include '../include/html/header.php'; ?>
-	<div class="main_app">
-		<div class="main">
-			<?php echo($lang_welcome); ?>
-		</div>
-	</div>
-	<?php include "../include/html/footer.php" ?>
-</body>
-</html>
-<?php mysqli_close($db);
+<?php
+    switch($_GET['page']){
+        case NULL:
+            require "../themes/{$$_SESSION['theme']}/index/index.php"; 
+            break;
+        case 'terms':
+            require "../themes/{$_SESSION['theme']}/index/terms.php"; 
+            break;
+        case 'authors':
+            $data = $db->query("SELECT id, name, img100 FROM users WHERE priv > 1");            
+            require "../themes/{$_SESSION['theme']}/index/authors.php"; 
+            break;
+    }
+?>

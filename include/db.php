@@ -2,7 +2,7 @@
     $dbconn = array(
         'server' => 'localhost',
         'user' => 'root',
-        'pass' => '',
+        'pass' => 'Nightsandytiktok234',
         'db' => 'onect'
     );
 ?>

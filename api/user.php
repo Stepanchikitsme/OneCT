@@ -1,7 +1,7 @@
 <?php 
     ini_set('display_errors', false); // Скрываем рукожопость автора
 
-    require_once "config.php";
+    require_once  "../include/config.php";
 
     class user{
         // Это же твой профиль
@@ -128,8 +128,6 @@
                         'error' => 'Bad token'
                     );
                 } else {
-                    $user_data = $get_user_token->fetch();
-
                     $username = "";
                     $open_wall = "";
 
@@ -152,7 +150,7 @@
                     $query = "UPDATE users SET 
                         name = " .$username. ",
                         descr = " .$db->quote($desc). ",
-                        yespost = " .(int)$open_wall. " WHERE id = " .$user_data['id'];
+                        yespost = '" .(int)$open_wall. "' WHERE id = '" .$user_data['id']. "'";
 
                     if($db->query($query)){
                         $response = array(
@@ -228,7 +226,7 @@
                         $imgwidth= imagesx($file);
                         $imgheight= imagesy($file);
                         
-                        if(($imgheight / $imgwidth) >= 1.5){
+                        if(($imgheight / $imgwidth) >= 1.1){
                             http_response_code(400);
                             $error = 1; 
                         } elseif(($imgheight / $imgwidth) <= 0.9){

@@ -1,174 +1,112 @@
 <?php
-	require_once "../include/config.php";
+    require_once '../include/config.php';
+    include '../include/web/user.php';
 
-	$all = mysqli_fetch_assoc(mysqli_query($db, 'SELECT * FROM users WHERE id = ' .(int)$_SESSION['user']['user_id']));
+    include "../api/user.php";
+    include "../api/wall.php";
 
-	$data = mysqli_fetch_assoc(mysqli_query($db, 'SELECT * FROM users WHERE id = ' .(int)$_GET['id']));
+    $text = '';
+    $user = new user();
+    $wall = new wall();
+
+    switch($_GET['page']){
+        case NULL:
+            // Выкладывание поста
+
+            if(isset($_POST['do_post'])){
+                $result = $wall->add($_SESSION['user']['token'], $_POST['text'], $_GET['id']);
+                if(isset($result['error'])){
+                    $text = $result['error'];
+                }
+            }
+
+            // Лайк
+
+            if(isset($_GET['like'])){
+                $result = $wall->like($_SESSION['user']['token'], $_GET['like']);
+                if(isset($result['error'])){
+                    $text = $result['error'];
+                }
+                header("Location: user.php?id={$_GET['id']}&p={$_GET['p']}#post{$_GET['like']}");
+                exit();
+            }
+
+            // Закреп
+
+            if(isset($_GET['pin'])){
+                $result = $wall->pin($_SESSION['user']['token'], $_GET['pin']);
+                if(isset($result['error'])){
+                    $text = $result['error'];
+                }
+                header("Location: user.php?id={$_GET['id']}&p={$_GET['p']}");
+                exit();
+            }
+
+            // Удаление поста
+
+            if(isset($_GET['del'])){
+                $result = $wall->delete($_SESSION['user']['token'], $_GET['del']);
+                if(isset($result['error'])){
+                    $text = $result['error'];
+                }
+                header("Location: user.php?id={$_GET['id']}&p={$_GET['p']}");
+                exit();
+            }
+
+            // А твой ли профиль?
+
+            if($_GET['id'] == $_SESSION['user']['user_id']){
+                $data_user[0] = $user->profile($_SESSION['user']['token'], $_GET['id']);
+                $_SESSION['user']['priv'] = $data_user[0]['privilege'];
+            } else{
+                $data_user = $user->getuser($_GET['id']);
+            }
+
+            // Проверка на существование профиля
+
+            if($data_user[0]['username'] == 'Not found' or isset($data_user['error'])){
+                header("Location: user.php?id=" .$_SESSION['user']['user_id']);
+            } else {
+                // Узнавание о пользователях со стены
+
+                $data_wall = $wall->getbyuser($_SESSION['user']['token'], $_GET['id'], (int)$_GET['p']);
+                
+                $user_ids = '';
+                $from_ids = '';
+                $i = 0;
+
+                foreach($data_wall as $data){
+                    $user_ids = $user_ids . (string)$data['user_id'] . ',';
+                    $from_ids = $from_ids . (string)$data['id_from'] . ',';
+                    $i++;
+                }
+
+                $user_ids = $user->getuser($user_ids);
+                $from_ids = $user->getuser($from_ids);
+            }
+
+            break;
+        case 'avatar':
+            if(isset($_POST['do_change'])){
+                $result = $user->avatar($_SESSION['user']['token']);
+                header("Location: index.php");
+            }
+
+            break;
+    }
 ?>
 
-<html>
-<head>
-	<?php include '../include/html/head.php'; ?>
-	<script src="js/main.js"></script>
-    <title><?php echo($lang_user_head . $data['name']); ?></title>
-</head>
-<body>
-	<?php include '../include/html/header.php'; ?>
-	<div class="main_app">
-		<div class="main">
-			<?php if((int)$_GET['id'] == $_SESSION['user']['user_id']): ?>
-				<div class="changeuser">
-					<?php if($all['priv'] == 3): ?>
-						<a href="../admin"><?php echo($lang_admin); ?></a>
-						| 
-					<?php endif; ?>
-					<a href="upload.php"><?php echo($lang_change_avatar); ?></a>
-					 | 
-					<a href="edit.php"><?php echo($lang_settings); ?></a>
-				</div>
-			<?php endif ?>
-			<table class="user">
-				<tr>
-					<?php if($data['img200'] != NULL): ?>
-						<td>
-							<img class="img100" src="<?php echo($data['img200']); ?>">
-						</td>
-					<?php else: ?>
-						<td><img class="img100" src="../imgs/blankimg.jpg"></td>
-					<?php endif; ?>
-					<td class="info">
-						<h1>
-							<?php 
-								echo(strip_tags($data['name']).' '); 
+<?php 
+    $site_header = array(
+        lang_change_avatar => '?page=avatar'
+    );
 
-								if($data['priv'] >= 1){
-									echo('<img src="../imgs/verif.gif">');
-								}
-							?>
-						</h1>
-					</td>
-				</tr>
-			</table>
-			<h1><?php echo($lang_description); ?><?php echo(preg_replace('/(https?:\/\/\S+)/', '<a href="$1">$1</a>', $data['descr'])); ?></h1>
-		</div>
-		<h1 class="head"><?php echo($lang_wall); ?></h1>
-		<div class="wall">
-			<?php if(isset($_SESSION['user']) and $data['yespost'] == 1 or (int)$_GET['id'] == $_SESSION['user']['user_id']): ?>
-				<form action="../methods/makepost.php" method="post" class="posting" enctype="multipart/form-data">
-					<input type="hidden" name="access_token" value="<?php echo($_SESSION['user']['access_token']); ?>">
-					<input type="hidden" name="owner_id" value="<?php echo((int)$_GET['id']); ?>">
-					<textarea name="text" class="postarea" minlength="3"></textarea>
-					<button type="submit" name="do_post" class="do_post"><?php echo($lang_publish); ?></button>
-					<div class="detail">
-						<a class="openmenu" href="javascript:showmenu();">
-							<img src="../imgs/close.gif" id="detailicon">
-							<?php echo($lang_attach); ?>
-						</a>
-						<div id="menu" style="display: none;">
-							<p><?php echo($lang_image); ?></p>
-							<input type="file" name="file" class="file" accept=".jpg,.jpeg,.png,.webp,.gif,.bmp">
-						</div>
-					</div>
-					<?php if(isset($_SESSION['error'])): ?>
-						<p class="error"><?php echo($_SESSION['error']); ?></p>
-						<?php unset($_SESSION['error']) ?>
-					<?php endif; ?>
-				</form> 
-			<?php endif; ?>
-			
-			<?php $data = mysqli_query($db, 'SELECT * FROM post WHERE id_user = ' .(int)$_GET['id']. ' ORDER BY pin DESC, date DESC LIMIT 10 OFFSET ' .(int)$_GET['p'] * 10); ?>
-			
-			<?php while($list = mysqli_fetch_assoc($data)): ?>
-
-				<?php $likes = mysqli_num_rows(mysqli_query($db, 'SELECT * FROM likes WHERE post_id = ' .$list['id'])); ?>
-
-				<div class="block" id="post<?php echo($list['id']); ?>">
-
-					<?php $user = mysqli_fetch_assoc(mysqli_query($db, 'SELECT name FROM users WHERE id = ' .$list['id_user'])); ?>
-					
-					<b>
-						<a class="user" href="user.php?id=<?php echo($list['id_user']); ?>">
-							<?php echo($user['name']); ?>
-						</a>
-					</b>
-
-					<?php
-						if($list['pin'] == 1){
-							echo($lang_pinned);
-						}
-					?>
-
-					<?php if($list['id_user'] == $_SESSION['user']['user_id'] or $list['id_who'] == $_SESSION['user']['user_id'] or $all['priv'] >= 2): ?>
-						<div class="buttons">
-							<a href="../methods/pinpost.php?id=<?php echo($list['id']); ?>">
-								<img src="../imgs/pin.gif" alt="pin ">
-							</a>
-							<a href="../methods/delpost.php?id=<?php echo($list['id']); ?>">
-								<img src="../imgs/del.gif" alt="delete ">
-							</a>
-						</div>
-					<?php endif; ?><br>
-
-					<span class="date">
-						<?php echo(date($lang_date, $list['date'])); ?>
-					</span><br>
-
-					<?php $user = mysqli_fetch_assoc(mysqli_query($db, 'SELECT name FROM users WHERE id = ' .$list['id_who'])); ?>
-					<b><?php echo($lang_byname); ?>
-						<a class="user" href="user.php?id=<?php echo($list['id_who']); ?>">
-							<?php echo($user['name']); ?>
-						</a>
-					</b>
-
-					<?php 
-						if($list['img'] != NULL){
-							echo('<img class="img" src="' .$list['img']. '">');
-						}
-					?>
-
-					<p><?php echo(preg_replace('/(https?:\/\/\S+)/', '<a href="$1">$1</a>', strip_tags($list['post']))); ?></p>
-
-					<?php if(isset($_SESSION['user'])): ?>
-						<?php $yourlike = mysqli_num_rows(mysqli_query($db, 'SELECT * FROM likes WHERE post_id = ' .$list['id']. ' AND user_id = ' .$_SESSION['user']['user_id'])); ?>
-
-						<div class="buttons" <?php if($yourlike != 0) echo('id="selected"'); ?>>
-							<a href="../methods/likepost.php?id=<?php echo($list['id']); ?>">
-								<img src="../imgs/like<?php if($yourlike != 0) echo('_sel'); ?>.gif" alt="like ">
-								<span class="likecount"><?php echo($likes); ?></span>
-							</a>
-						</div>
-					<?php else: ?>
-						<div class="buttons">
-							<a class="like">
-								<img src="../imgs/like.gif" alt="like ">
-								<span class="likecount"><?php echo($likes); ?></span>
-							</a>
-						</div>
-					<?php endif; ?><br>
-				</div>
-				<div class="opencom">
-					<a href="comments.php?id=<?php echo($list['id']); ?>">
-						Открыть комментарии (<?php echo(mysqli_num_rows(mysqli_query($db, 'SELECT * FROM comments WHERE post_id = ' .(int)$list['id']))); ?>)
-					</a>
-				</div>
-			<?php endwhile; ?>
-
-			<?php if(mysqli_num_rows($data) == 0): ?>
-				<h1 class="error"><?php echo($lang_nowall); ?></h1>
-			<?php endif; ?>
-
-			<div class="pages">
-				<?php if((int)$_GET['p'] >= 1): ?>
-					<a class="back" href="?id=<?php echo((int)$_GET['id']); ?>&p=<?php echo((int)$_GET['p'] - 1); ?>"><?php echo($lang_previous); ?></a>
-				<?php endif; ?>
-				<?php if(mysqli_num_rows($data) == 10): ?>
-					<a class="next" href="?id=<?php echo((int)$_GET['id']); ?>&p=<?php echo((int)$_GET['p'] + 1); ?>"><?php echo($lang_next); ?></a>
-				<?php endif; ?>
-			</div>
-		</div>
-	</div>
-	<?php include "../include/html/footer.php" ?>
-</body>
-</html>
-
-<?php mysqli_close($db);
+    switch($_GET['page']){
+        case NULL:
+            require "../themes/{$_SESSION['theme']}/users/user.php"; 
+            break;
+        case 'avatar':
+            require "../themes/{$_SESSION['theme']}/users/avatar.php"; 
+            break;
+    }
+?>

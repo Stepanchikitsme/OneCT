@@ -1,7 +1,7 @@
 <?php 
     ini_set('display_errors', false); // Скрываем рукожопость автора
 
-    require_once "config.php";
+    require_once "../include/config.php";
 
     class wall{
         // Держи свою глобальную ленту, петушок
