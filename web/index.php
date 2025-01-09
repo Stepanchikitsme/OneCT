@@ -12,7 +12,7 @@
 <?php
     switch($_GET['page']){
         case NULL:
-            require "../themes/{$$_SESSION['theme']}/index/index.php"; 
+            require "../themes/{$_SESSION['theme']}/index/index.php"; 
             break;
         case 'terms':
             require "../themes/{$_SESSION['theme']}/index/terms.php"; 
