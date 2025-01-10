@@ -6,7 +6,7 @@
     $url = 'http://' .$_SERVER['HTTP_HOST'] /* . '/newct' */;
     $sitename = 'OneCt';
     $style = 'std';
-    $antispam = 0;
+    $antispam = 60;
     $lang = "ru";
     $links = array(
         'Telegram' => 'https://t.me/openone_channel',
