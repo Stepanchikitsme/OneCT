@@ -20,7 +20,7 @@
 
     define('lang_index_text1', "Здараствуйте в наш {$sitename}!");
     define('lang_index_text2', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget metus vulputate justo ultrices vehicula. Proin fermentum laoreet urna, id pretium est tristique non. Vestibulum tempus interdum eros in aliquam. Praesent vitae quam lectus. Nulla sed odio risus. Vestibulum feugiat vel dui in commodo. Suspendisse potenti. Ut ut pharetra purus.');
-    define('lang_terms_text', '<h3>Правила использования сайта:</h3>
+    define('lang_terms_text', '<h3>Правила использования {$sitename}:</h3>
         <p>
             1. На сайте запрещается политика, порно, шок контент и контент запрещённый в вашей стране.<br>
             2. Реклама на сайте допускается, только если она не рекламирует зарещённый контент в вашей стране или порно с шок контентом.<br>
@@ -29,9 +29,9 @@
             5. Админы могут забанить ваш аккаунт по любой причине и указать причину на это, а если вас забанят без причины - пишите {$siteadmintg} за что вас забанили.<br>
         </p>
         <h3>Мы получаем ваш Email и все ваши данные из этого сайта.</h3>');
-    define('lang_authors_text1', 'Сам {$sitename} написан одним человеком с использованием идей других людей из телеграмм канала OpenOne, сам человек это:'); 
+    define('lang_authors_text1', 'Сам OneCt написан одним человеком с использованием идей других людей из телеграмм канала OpenOne, сам человек это:'); 
     define('lang_authors_text2', 'На {$sitename} модераторами являются: '); 
-    define('lang_authors_text3', '{$sitename} использует лицензию BSD 3-Clause и если вы хотите форкнуть {$sitename} то вы должны указать авторство оригинального продукта, закрывать исходники своего форка {$sitename} можно, как и всё что разрешает лицензия.'); 
+    define('lang_authors_text3', 'OneCt использует лицензию BSD 3-Clause и если вы хотите форкнуть {$sitename} то вы должны указать авторство оригинального продукта, закрывать исходники своего форка OneCt можно, как и всё что разрешает лицензия.'); 
     define('lang_nickname', 'Никнейм');
     define('lang_email', 'Email');
     define('lang_pass', 'Пароль');
