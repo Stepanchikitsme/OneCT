@@ -5,6 +5,7 @@
 
     $url = 'http://' .$_SERVER['HTTP_HOST'] /* . '/newct' */;
     $sitename = 'OneCt';
+    $siteadmintg = '@dibof228';
     $style = 'std';
     $antispam = 60;
     $lang = "ru";
